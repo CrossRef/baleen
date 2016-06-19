@@ -1,7 +1,11 @@
 (ns baleen.core-test
-  (:require [clojure.test :refer :all]
-            [baleen.core :refer :all]))
+  (:require [baleen.api :as api]
+            [baleen.context :as context]
+            [baleen.core :as core]
+            [baleen.queue :as queue]
+            [baleen.redis :as redis]
+            [baleen.time :as time]
+            [baleen.web :as web])
+  (:require [clojure.test :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+; Just check that everythign can be loaded.
