@@ -1,0 +1,13 @@
+{
+ :lagotto-source-token "SOURCE_TOKEN"
+ :lagotto-api-base-url "http://test.api.eventdata.crossref.org"
+ :lagotto-auth-token "AUTH_TOKEN"
+ :archive-s3-bucket "TEST_S3_BUCKET"
+ :s3-access-key-id "TEST_ACCESS_KEY"
+ :s3-secret-access-key "TEST_SECRET_ACCESS_KEY"
+ :redis-host "localhost"
+ :redis-port "6379"
+ :redis-db-number "2"
+ :recent-changes-subscribe-filter "*"
+ :doi-desinations-base-url "http://test.destinations.labs.crossref.org/"
+}

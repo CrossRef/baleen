@@ -9,5 +9,10 @@
                  [redis.clients/jedis "2.8.0"]
                  [clj-time "0.12.0"]
                  [org.jsoup/jsoup "1.8.3"]
+                 [org.clojure/data.json "0.2.6"]
+                 [org.clojure/data.json "0.2.6"]
+                 [crossref-util "0.1.10"]
                  [http-kit "2.1.18"]
-                 [http-kit.fake "0.2.1"]])
+                 [http-kit.fake "0.2.1"]]
+
+  :profiles {:test {:resource-paths ["config/test"]}})

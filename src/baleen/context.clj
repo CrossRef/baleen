@@ -12,6 +12,8 @@
   (get-friendly-app-name [this] "User-friendly name of the app for storage use.")
   (get-config-keys [this] "Collection of required config keys.")
 
+  (get-config [this] "Return the config object.")
+
   (config-ok? [this] "Is the config OK? If not, logs and returns false.")
 
   (boot! [this] "Start the application context, start database connections etc. Return success."))
@@ -54,6 +56,9 @@
         (do
           (l/fatal "Missing keys" missing)
           false))))
+
+  (get-config [this]
+    env)
 
   (boot! [this]
     (l/info "Booting" friendly-app-name)
