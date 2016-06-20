@@ -19,7 +19,7 @@
   (boot! [this] "Start the application context, start database connections etc. Return success."))
 
 (def base-required-config-keys #{
-    :doi-desinations-base-url ; base URL for DOI Destinations service.
+    :doi-destinations-base-url ; base URL for DOI Destinations service.
     :archive-s3-bucket ; S3 Bucket name that holds archive information.
     :s3-access-key-id ; AWS access key for putting logs.
     :s3-secret-access-key ; AWS access key for putting logs.
