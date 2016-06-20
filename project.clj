@@ -13,6 +13,17 @@
                  [org.clojure/data.json "0.2.6"]
                  [crossref-util "0.1.10"]
                  [http-kit "2.1.18"]
-                 [http-kit.fake "0.2.1"]]
+                 [http-kit.fake "0.2.1"]
+                 [liberator "0.14.1"]
+                 [compojure "1.5.1"]
+                 [ring "1.5.0"]
 
-  :profiles {:test {:resource-paths ["config/test"]}})
+                 [ring/ring-jetty-adapter "1.5.0"]
+                 ; [javax.servlet/servlet-api "2.5"]
+                 [ring/ring-servlet "1.5.0"]
+                 [org.eclipse.jetty/jetty-server "9.4.0.M0"]
+
+                 [overtone/at-at "1.2.0"]]
+
+  :profiles {:uberjar {:aot :all}
+             :test {:resource-paths ["config/test"]}})

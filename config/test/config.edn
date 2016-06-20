@@ -10,4 +10,5 @@
  :redis-db-number "2"
  :recent-changes-subscribe-filter "*"
  :doi-desinations-base-url "http://test.destinations.labs.crossref.org/"
+ :monitor-port "9876"
 }

@@ -26,6 +26,7 @@
     :redis-host ; host running redis server
     :redis-port ; port of redis server
     :redis-db-number ; redis database number to use
+    :monitor-port ; port to run monitoring server on
 
     :lagotto-api-base-url
     :lagotto-source-token

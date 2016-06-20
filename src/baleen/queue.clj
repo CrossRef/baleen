@@ -8,13 +8,25 @@
 
 (defn enqueue-with-time
   "Enqueue an input as a JSON blob.
-   By default save in the input queue and also the daily input log goverened by the time it was created."
+   By default save in the input queue and also the daily input log goverened by the time it was created.
+   Also increment named counter. Every queue has one for monitoring purposes."
   [context queue-name event-time json-blob daily-log]
   (with-open [redis-connection (redis/get-connection)]
     (let [queue-key-name (str (bcontext/get-app-name context) "-" queue-name)
-          log-key-name (str (bcontext/get-app-name context) "-" queue-name "-" (btime/format-ymd event-time))]
-      ; Push to start of queue and end of log.
+          log-key-name (str (bcontext/get-app-name context) "-" queue-name "-" (btime/format-ymd event-time))
+          counter-key-name (str (bcontext/get-app-name context) "-" queue-name "-count")
+          counters-names-key-name (str (bcontext/get-app-name context) "__counters")]
+      
+      ; Increment counter.
+      (.incr redis-connection counter-key-name)
+
+      ; Also maintain a set of known counter keys.
+      (.sadd redis-connection counters-names-key-name (into-array [counter-key-name]))
+
+      ; Push to start of queue.
       (.lpush redis-connection queue-key-name (into-array [json-blob]))
+
+      ; Optionally push to end of log.
       (when daily-log
         (.rpush redis-connection log-key-name (into-array [json-blob]))))))
 
