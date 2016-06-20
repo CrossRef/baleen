@@ -7,8 +7,14 @@
 
 (defn make-jedis-pool
   []
-  (let [^JedisPool pool (new JedisPool (:redis-host env) (Integer/parseInt (:redis-port env)))]
-  pool))
+  ; Nice big pool in case we have multiple threads trying to interact with multiple queues.
+  ; Real chance of deadlock otherwise!
+  (let [pool-config (new org.apache.commons.pool2.impl.GenericObjectPoolConfig)]
+    (.setMaxTotal pool-config 100)
+
+
+(new JedisPool pool-config (:redis-host env) (Integer/parseInt (:redis-port env)))
+  ))
 
 (def jedis-pool
   (delay (make-jedis-pool)))

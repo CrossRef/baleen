@@ -29,15 +29,14 @@
 
   See http://redis.io/commands/rpoplpush for reliable queue pattern."
   [context queue-name function]
-  (let [redis-connection (redis/get-connection)
-        queue-key-name (str (bcontext/get-app-name context) "-" queue-name)
-        working-queue-key-name (str (bcontext/get-app-name context) "-" queue-name "-working")]
-    (l/debug "Processing queue:" working-queue-key-name "working queue name:" working-queue-key-name)
-    (loop []
-      (let [item-str (.brpoplpush redis-connection queue-key-name working-queue-key-name 0)
-            success (function item-str)]
-        ; Once this is done successfully remove from the working queue.
-        (when success
-          (.lrem redis-connection working-queue-key-name 0 item-str)))
-      (recur))))
+  (with-open [redis-connection (redis/get-connection)]
+    (let [queue-key-name (str (bcontext/get-app-name context) "-" queue-name)
+          working-queue-key-name (str (bcontext/get-app-name context) "-" queue-name "-working")]
+      (loop []
+        (let [item-str (.brpoplpush redis-connection queue-key-name working-queue-key-name 0)
+              success (function item-str)]
+          ; Once this is done successfully remove from the working queue.
+          (when success
+            (.lrem redis-connection working-queue-key-name 0 item-str)))
+        (recur)))))
 
