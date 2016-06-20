@@ -11,7 +11,7 @@
                                     "Test Agent"
                                     #{})]
 
-      (with-fake-http [{:url "http://test.api.eventdata.crossref.org/deposits" :method :post}
+      (with-fake-http [{:url "http://test.api.eventdata.crossref.org/api/deposits" :method :post}
                        {:status 202 :body ""}]
         (let [post-result (lagotto/send-deposit
                               context
@@ -38,7 +38,7 @@
                                     "Test Agent"
                                     #{})]
 
-      (with-fake-http [{:url "http://test.api.eventdata.crossref.org/deposits" :method :post}
+      (with-fake-http [{:url "http://test.api.eventdata.crossref.org/api/deposits" :method :post}
                        {:status 400 :body ""}]
         (let [post-result (lagotto/send-deposit
                               context

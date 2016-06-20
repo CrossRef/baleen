@@ -45,7 +45,7 @@
 
 (defn send-deposit
   [context &{:keys [subj-title subj-url subj-author subj-container-title subj-work-type obj-doi action event-id date-str source-id relation-type]}]
-  (let [endpoint (str (:lagotto-api-base-url (bcontext/get-config context)) "/deposits")
+  (let [endpoint (str (:lagotto-api-base-url (bcontext/get-config context)) "/api/deposits")
         
         auth-token (:lagotto-auth-token (bcontext/get-config context))
 
@@ -67,7 +67,7 @@
     (when payload
       (let [result @(http-client/post endpoint
                    {:headers {"Authorization" (str "Token token=" auth-token) "Content-Type" "application/json"}
-                    :body (json/write-str payload)})]
+                    :body payload})]
       (l/info "Result:" result)
       (= (:status result) 202)))))
 
