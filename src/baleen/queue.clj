@@ -9,10 +9,10 @@
 (defn inc-counter
   "Increment the named counter."
   [context counter-key-name]
-  (let [redis-connection (redis/get-connection context)
-        counters-names-key-name (str (bcontext/get-app-name context) "__counters")]
-    (.incr redis-connection counter-key-name)
-    (.sadd redis-connection counters-names-key-name (into-array [counter-key-name]))))
+  (with-open [redis-connection (redis/get-connection context)]
+    (let [counters-names-key-name (str (bcontext/get-app-name context) "__counters")]
+      (.incr redis-connection counter-key-name)
+      (.sadd redis-connection counters-names-key-name (into-array [counter-key-name])))))
 
 (defn enqueue-with-time
   "Enqueue an input as a JSON blob.
