@@ -22,10 +22,14 @@
   (with-open [redis-connection (redis/get-connection context)]
     (let [queue-key-name (str (bcontext/get-app-name context) "-" queue-name)
           log-key-name (str (bcontext/get-app-name context) "-" queue-name "-" (btime/format-ymd event-time))
-          counter-key-name (str (bcontext/get-app-name context) "-" queue-name "-received-count")]
+          counter-key-name (str (bcontext/get-app-name context) "-" queue-name "-received-count")
+          queues-list-name (str (bcontext/get-app-name context) "__queues")]
       
       ; Increment counter.
       (inc-counter context counter-key-name)
+
+      ; Maintain list of existing queues.
+      (.sadd redis-connection queues-list-name (into-array [queue-key-name]))
 
       ; Push to start of queue.
       (.lpush redis-connection queue-key-name (into-array [json-blob]))

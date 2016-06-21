@@ -26,6 +26,15 @@
                                               :value (.get redis-connection heartbeat-name)}) heartbeat-names)]
   heartbeats))
 
+(defn get-queues-status
+  [redis-connection context]
+  (let [prefix-length (inc (.length (bcontext/get-app-name context)))
+        queues-list-name (str (bcontext/get-app-name context) "__queues")
+        queue-names (.smembers redis-connection queues-list-name)
+        queues (map (fn [queue-name] {:name (.substring queue-name prefix-length)
+                                      :length (.llen redis-connection queue-name)}) queue-names)]
+    queues))
+
 (liberator/defresource status-resource []
   :available-media-types ["application/json"]
   :handle-ok (fn [ctx]
@@ -47,11 +56,14 @@
                                                           :count-history history-values}])) counter-names))
 
             heartbeats (get-heartbeats redis-connection context)
+            queues (get-queues-status redis-connection context)
+
             heartbeat-errors (filter #(-> % :value nil?) heartbeats)]
 
         (json/write-str {:app-name (bcontext/get-app-name @bcontext/current-context)
                          :app-friendly-name (bcontext/get-friendly-app-name @bcontext/current-context)
                          :counts counts
+                         :queues queues
                          :heartbeats heartbeats
                          :heartbeat-errors heartbeat-errors})))))
 
