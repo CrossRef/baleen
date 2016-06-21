@@ -63,7 +63,7 @@
         port (Integer/parseInt (:monitor-port (bcontext/get-config context)))]
     
     ; Shift inputs every 5 seconds.
-    (at-at/every 5000 (partial shift context #"^.*-input-count$") pool)
+    (at-at/every 5000 (partial shift context #"^.*-received-count$") pool)
     (at-at/every 5000 (partial shift context #"^.*-processed-count$") pool)
 
     ; Shift mathces every 5 minutes.
