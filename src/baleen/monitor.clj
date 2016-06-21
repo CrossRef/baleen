@@ -18,16 +18,22 @@
     (with-open [redis-connection (redis/get-connection @bcontext/current-context)]
       (let [counter-names (.smembers redis-connection (str (bcontext/get-app-name @bcontext/current-context) "__counters"))
             counts (into {} (map (fn [counter-name]
-                             (let [history-queue-name (str counter-name "-history")
+                             (let [; drop the app-prefix (e.g. "reddit-" from key names)
+                                   prefix-length (inc (.length (str (bcontext/get-app-name @bcontext/current-context))))
+                                   counter-name-unprefixed (.substring counter-name prefix-length)
+
+                                   history-queue-name (str counter-name "-history")
                                    history-values-str (.lrange redis-connection history-queue-name 0 -1)
                                    history-values (map #(Integer/parseInt (if (string/blank? %) "0" %)) history-values-str)
 
                                    current-value-str (.get redis-connection counter-name)
                                    current-value (Integer/parseInt (if (string/blank? current-value-str) "0" current-value-str))]
 
-                                [counter-name {:current-count current-value
+                                [counter-name-unprefixed {:current-count current-value
                                                :count-history history-values}])) counter-names))]
-        (json/write-str counts)))))
+        (json/write-str {:app-name (bcontext/get-app-name @bcontext/current-context)
+                         :app-friendly-name (bcontext/get-friendly-app-name @bcontext/current-context)
+                         :counts counts})))))
 
 (def max-history-len 100)
 
@@ -58,6 +64,7 @@
     
     ; Shift inputs every 5 seconds.
     (at-at/every 5000 (partial shift context #"^.*-input-count$") pool)
+    (at-at/every 5000 (partial shift context #"^.*-processed-count$") pool)
 
     ; Shift mathces every 5 minutes.
     (at-at/every 300000 (partial shift context #"^.*-matched-count$") pool)

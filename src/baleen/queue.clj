@@ -46,13 +46,17 @@
   (with-open [redis-connection (redis/get-connection context)]
     (let [queue-key-name (str (bcontext/get-app-name context) "-" queue-name)
           working-queue-key-name (str (bcontext/get-app-name context) "-" queue-name "-working")
-          done-queue-key-name (str (bcontext/get-app-name context) "-" queue-name "-done")]
+          done-queue-key-name (str (bcontext/get-app-name context) "-" queue-name "-done")
+          counter-queue-name (str (bcontext/get-app-name context) "-" queue-name "-count")]
       (loop []
         (let [item-str (.brpoplpush redis-connection queue-key-name working-queue-key-name 0)
               success (function item-str)]
           ; Once this is done successfully remove from the working queue.
           (when success
             (.lrem redis-connection working-queue-key-name 0 item-str)
+
+            (.incr redis-connection counter-queue-name)
+
             (when keep-done
               (.rpush redis-connection done-queue-key-name (into-array [item-str])))))
         (recur)))))
