@@ -6,6 +6,14 @@
             [baleen.time :as btime]
             [baleen.redis :as redis]))
 
+(defn inc-counter
+  "Increment the named counter."
+  [context counter-key-name]
+  (let [redis-connection (redis/get-connection context)
+        counters-names-key-name (str (bcontext/get-app-name context) "__counters")]
+    (.incr redis-connection counter-key-name)
+    (.sadd redis-connection counters-names-key-name (into-array [counter-key-name]))))
+
 (defn enqueue-with-time
   "Enqueue an input as a JSON blob.
    By default save in the input queue and also the daily input log goverened by the time it was created.
@@ -15,13 +23,10 @@
     (let [queue-key-name (str (bcontext/get-app-name context) "-" queue-name)
           log-key-name (str (bcontext/get-app-name context) "-" queue-name "-" (btime/format-ymd event-time))
           counter-key-name (str (bcontext/get-app-name context) "-" queue-name "-count")
-          counters-names-key-name (str (bcontext/get-app-name context) "__counters")]
+          ]
       
       ; Increment counter.
-      (.incr redis-connection counter-key-name)
-
-      ; Also maintain a set of known counter keys.
-      (.sadd redis-connection counters-names-key-name (into-array [counter-key-name]))
+      (inc-counter context counter-key-name)
 
       ; Push to start of queue.
       (.lpush redis-connection queue-key-name (into-array [json-blob]))
@@ -55,7 +60,7 @@
           (when success
             (.lrem redis-connection working-queue-key-name 0 item-str)
 
-            (.incr redis-connection counter-queue-name)
+            (inc-counter context counter-queue-name)
 
             (when keep-done
               (.rpush redis-connection done-queue-key-name (into-array [item-str])))))
