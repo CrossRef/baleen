@@ -11,7 +11,7 @@
    By default save in the input queue and also the daily input log goverened by the time it was created.
    Also increment named counter. Every queue has one for monitoring purposes."
   [context queue-name event-time json-blob daily-log]
-  (with-open [redis-connection (redis/get-connection)]
+  (with-open [redis-connection (redis/get-connection context)]
     (let [queue-key-name (str (bcontext/get-app-name context) "-" queue-name)
           log-key-name (str (bcontext/get-app-name context) "-" queue-name "-" (btime/format-ymd event-time))
           counter-key-name (str (bcontext/get-app-name context) "-" queue-name "-count")
@@ -43,7 +43,7 @@
 
   See http://redis.io/commands/rpoplpush for reliable queue pattern."
   [context queue-name function & {keep-done :keep-done}]
-  (with-open [redis-connection (redis/get-connection)]
+  (with-open [redis-connection (redis/get-connection context)]
     (let [queue-key-name (str (bcontext/get-app-name context) "-" queue-name)
           working-queue-key-name (str (bcontext/get-app-name context) "-" queue-name "-working")
           done-queue-key-name (str (bcontext/get-app-name context) "-" queue-name "-done")]

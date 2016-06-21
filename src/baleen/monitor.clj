@@ -10,20 +10,23 @@
   (:require [baleen.context :as bcontext]
             [baleen.redis :as redis]))
 
-(def baleen-context (atom nil))
-
 (def server (atom nil))
 
 (liberator/defresource status-resource []
   :available-media-types ["application/json"]
   :handle-ok (fn [ctx]
-    (with-open [redis-connection (redis/get-connection)]
-      (let [counter-names (.smembers redis-connection (str (bcontext/get-app-name @baleen-context) "__counters"))
+    (with-open [redis-connection (redis/get-connection @bcontext/current-context)]
+      (let [counter-names (.smembers redis-connection (str (bcontext/get-app-name @bcontext/current-context) "__counters"))
             counts (into {} (map (fn [counter-name]
                              (let [history-queue-name (str counter-name "-history")
-                                   values (.lrange redis-connection history-queue-name 0 -1)
-                                   int-values (map #(Integer/parseInt (if (string/blank? %) "0" %)) values)]
-                                [counter-name {:counts int-values}])) counter-names))]
+                                   history-values-str (.lrange redis-connection history-queue-name 0 -1)
+                                   history-values (map #(Integer/parseInt (if (string/blank? %) "0" %)) history-values-str)
+
+                                   current-value-str (.get redis-connection counter-name)
+                                   current-value (Integer/parseInt (if (string/blank? current-value-str) "0" current-value-str))]
+                                   
+                                [counter-name {:current-count current-count
+                                               :count-history history-values}])) counter-names))]
         (json/write-str counts)))))
 
 (def max-history-len 100)
@@ -32,9 +35,10 @@
   "Shift all counters that match a given expression."
   [context match-re]
   (l/info "Shift" match-re)
-  (with-open [redis-connection (redis/get-connection)]
+  (with-open [redis-connection (redis/get-connection current-context)]
     ; Fetch the set of counter names maintained by the `queue/enqueue-with-time`.
     (let [counter-names (.smembers redis-connection (str (bcontext/get-app-name context) "__counters"))
+  
           matching-counter-names (filter #(re-matches match-re %) counter-names)]
       (doseq [counter-name matching-counter-names]
         (let [event-count (or (.get redis-connection counter-name))
@@ -49,7 +53,6 @@
 (defn run
   "Run the monitoring server."
   [context]
-  (reset! baleen-context context)
   (let [pool (at-at/mk-pool)
         port (Integer/parseInt (:monitor-port (bcontext/get-config context)))]
     

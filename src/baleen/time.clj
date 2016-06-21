@@ -25,3 +25,14 @@
   [date]
   (str date))
 
+(defn last-n-days
+  "Return a seq of the last n days starting yesterday as midnight dates."
+  [num-days]
+  (map #(clj-time/minus (clj-time/now) (clj-time/days %)) (range 1 num-days)))
+  
+
+(defn last-n-days-ymd
+  "Return a seq of the last n days starting yesterday in YYYY-MM-DD format."
+  [num-days]
+  (map format-ymd (last-n-days num-days)))
+

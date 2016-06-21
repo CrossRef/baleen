@@ -2,8 +2,12 @@
   "A Baleen context object."
   (:require [clojure.set :as set]
             [clojure.tools.logging :as l])
-  (:require [config.core :refer [env]])
-  )
+  (:require [config.core :refer [env]]))
+
+(def current-context
+  "The currently operating context.
+  A global variable to hold a context object, so use sparingly if ever."
+  (atom nil))
 
 (defprotocol BaleenContext
   "A context object for a Baleen application."
@@ -65,4 +69,6 @@
     (l/info "Booting" friendly-app-name)
     (let [config-ok (config-ok? this)]
       (l/info "Config" config-ok)
+      (reset! current-context this)
+      (l/info "Current context now" @current-context)
       config-ok)))

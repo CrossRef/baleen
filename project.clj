@@ -17,13 +17,14 @@
                  [liberator "0.14.1"]
                  [compojure "1.5.1"]
                  [ring "1.5.0"]
-
+                 [com.amazonaws/aws-java-sdk "1.11.6"]
+                 [com.fasterxml.jackson.core/jackson-databind "2.7.5"]
+                 [org.apache.httpcomponents/httpclient "4.5.2"]
                  [ring/ring-jetty-adapter "1.5.0"]
-                 ; [javax.servlet/servlet-api "2.5"]
                  [ring/ring-servlet "1.5.0"]
                  [org.eclipse.jetty/jetty-server "9.4.0.M0"]
-
-                 [overtone/at-at "1.2.0"]]
+                 [overtone/at-at "1.2.0"]
+                 [robert/bruce "0.8.0"]]
 
   :profiles {:uberjar {:aot :all}
              :test {:resource-paths ["config/test"]}})
