@@ -22,8 +22,7 @@
   (with-open [redis-connection (redis/get-connection context)]
     (let [queue-key-name (str (bcontext/get-app-name context) "-" queue-name)
           log-key-name (str (bcontext/get-app-name context) "-" queue-name "-" (btime/format-ymd event-time))
-          counter-key-name (str (bcontext/get-app-name context) "-" queue-name "-count")
-          ]
+          counter-key-name (str (bcontext/get-app-name context) "-" queue-name "-received-count")]
       
       ; Increment counter.
       (inc-counter context counter-key-name)
@@ -52,7 +51,7 @@
     (let [queue-key-name (str (bcontext/get-app-name context) "-" queue-name)
           working-queue-key-name (str (bcontext/get-app-name context) "-" queue-name "-working")
           done-queue-key-name (str (bcontext/get-app-name context) "-" queue-name "-done")
-          counter-queue-name (str (bcontext/get-app-name context) "-" queue-name "-count")]
+          counter-queue-name (str (bcontext/get-app-name context) "-" queue-name "-processed-count")]
       (loop []
         (let [item-str (.brpoplpush redis-connection queue-key-name working-queue-key-name 0)
               success (function item-str)]
