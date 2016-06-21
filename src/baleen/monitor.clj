@@ -68,6 +68,16 @@
   :handle-service-not-available (fn [ctx]
       (json/write-str {:heartbeats (::heartbeats ctx) :heartbeat-errors (::heartbeat-errors ctx)})))
 
+(liberator/defresource recent-events-resource []
+  :available-media-types ["application/json"]
+  :handle-ok (fn [ctx]
+    (with-open [redis-connection (redis/get-connection @bcontext/current-context)]
+      (let [events-queue-name (str (bcontext/get-app-name @bcontext/current-context) "__push_history")
+            events (.lrange redis-connection events-queue-name 0 -1)
+            events-parsed (map json/read-str events)]
+        (json/write-str events-parsed)))))
+        
+
 (def max-history-len 100)
 
 (defn shift
@@ -88,7 +98,8 @@
 
 (compojure/defroutes app
   (compojure/GET "/status" [] (status-resource))
-  (compojure/GET "/heartbeat" [] (heartbeat-resource)))
+  (compojure/GET "/heartbeat" [] (heartbeat-resource))
+  (compojure/GET "/recent-events" [] (recent-events-resource)))
 
 (defn register-heartbeat
   "Register a named heartbeat. This will start running and keep running in a background thread.
