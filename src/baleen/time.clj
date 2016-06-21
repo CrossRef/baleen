@@ -26,13 +26,14 @@
   (str date))
 
 (defn last-n-days
-  "Return a seq of the last n days starting yesterday as midnight dates."
-  [num-days]
-  (map #(clj-time/minus (clj-time/now) (clj-time/days %)) (range 1 num-days)))
+  "Return a seq of the last n days starting :yesterday or :day-before-yesterday as midnight dates."
+  [num-days from]
+  (let [from-days ({:yesterday 1 :day-before-yesterday 2} from 0)]
+    (map #(clj-time/minus (clj-time/now) (clj-time/days %)) (range from-days num-days))))
   
 
 (defn last-n-days-ymd
-  "Return a seq of the last n days starting yesterday in YYYY-MM-DD format."
-  [num-days]
-  (map format-ymd (last-n-days num-days)))
+  "Return a seq of the last n days starting :yesterday or :day-before-yesterday in YYYY-MM-DD format."
+  [num-days from]
+  (map format-ymd (last-n-days num-days from)))
 

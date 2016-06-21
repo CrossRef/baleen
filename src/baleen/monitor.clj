@@ -24,8 +24,8 @@
 
                                    current-value-str (.get redis-connection counter-name)
                                    current-value (Integer/parseInt (if (string/blank? current-value-str) "0" current-value-str))]
-                                   
-                                [counter-name {:current-count current-count
+
+                                [counter-name {:current-count current-value
                                                :count-history history-values}])) counter-names))]
         (json/write-str counts)))))
 
@@ -35,7 +35,7 @@
   "Shift all counters that match a given expression."
   [context match-re]
   (l/info "Shift" match-re)
-  (with-open [redis-connection (redis/get-connection current-context)]
+  (with-open [redis-connection (redis/get-connection context)]
     ; Fetch the set of counter names maintained by the `queue/enqueue-with-time`.
     (let [counter-names (.smembers redis-connection (str (bcontext/get-app-name context) "__counters"))
   
