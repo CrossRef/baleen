@@ -25,6 +25,10 @@
   [date]
   (str date))
 
+(defn iso8601-now
+  []
+  (format-iso8601 (now)))
+
 (defn last-n-days
   "Return a seq of the last n days starting :yesterday or :day-before-yesterday as midnight dates."
   [num-days from]
