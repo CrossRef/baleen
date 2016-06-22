@@ -19,7 +19,9 @@
   "Fetch a new set of rules from the DOI Destinations service. Return JSON blob."
   [context]
   (let [url (str (:doi-destinations-base-url (baleen.context/get-config context)) "/data/domain-names.json")]
-    (->> url http-client/get deref :body json/read-str)
+    ; TODO temp hack to exclude things like ".".
+    (->> url http-client/get deref :body json/read-str (filter #(> (.length %) 5)))
+
   ; Single domain for prototyping.
   ; ["scitation.aip.org"]
   ; ["aac.asm.org" "journals.plos.org" "advances.sciencemag.org"  "onlinelibrary.wiley.com" "scitation.aip.org"]

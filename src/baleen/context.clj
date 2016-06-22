@@ -71,4 +71,6 @@
       (l/info "Config" config-ok)
       (reset! current-context this)
       (l/info "Current context now" @current-context)
-      config-ok)))
+      
+      ; Mean but fair.
+      (when-not config-ok (System/exit 1)))))

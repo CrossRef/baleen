@@ -81,6 +81,7 @@
         ; Maintain last n push events.
         ; Don't run in test mode without booted context and connection to redis. TODO bit of a hack.
         (when (and ok @bcontext/current-context)
+          (l/info "Saving to recent push history")
           (with-open [redis-connection (redis/get-connection context)]
             (let [queue-names-key-name (str (bcontext/get-app-name context) "__push_history")]
               (.lpush redis-connection queue-names-key-name (into-array [payload]))

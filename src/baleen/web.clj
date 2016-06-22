@@ -4,7 +4,8 @@
             [clojure.string :as string])
   (:require [baleen.context :as bcontext]
             [baleen.time :as btime]
-            [baleen.redis :as redis])
+            [baleen.redis :as redis]
+            [baleen.reverse :as reverse])
   (:require [org.httpkit.client :as http])
   (:import [org.jsoup Jsoup]
            [java.net URLDecoder URL MalformedURLException]))
@@ -69,4 +70,18 @@
   (let [hrefs (extract-a-hrefs-from-html body)
         dois (set (keep is-doi-url? hrefs))]
     dois))
+
+(defn extract-dois-from-body-via-landing-page-urls
+  "Fetch the set of DOIs that are mentioned in the body text by their landing page URLs."
+  [context body]
+  ; As some character encoding inconsistencies crop up from time to time in the live stream, this reduces the chance of error. 
+  (let [; fetch 100kb or so of domains. Saves lots and lots of queries.
+        domains (concat (reverse/fetch-domains context) ["doi.org"])
+        hrefs (extract-a-hrefs-from-html body)
+        ; Just do a quick stupid filter to only query for hopeful domains.
+        first-pass (filter #(some (fn [domain] (.contains % domain)) domains) hrefs)
+        dois (set (keep (fn [href]
+                          (reverse/query-reverse-api context href)) first-pass))]
+    dois))
+
 
