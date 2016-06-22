@@ -74,12 +74,12 @@
   (l/info "Attempt stash" list-name " -> " remote-name)
   (with-open [^Jedis redis-conn (baleen-redis/get-connection context)]
     (let [list-name-key (str (bcontext/get-app-name context))
-          list-range (.lrange redis-conn list-name 0 -1)
-          key-exists (.exists redis-conn list-name)]
+          list-range (.lrange redis-conn list-name-key 0 -1)
+          key-exists (.exists redis-conn list-name-key)]
       (if-not key-exists
-        (l/info "Key" list-name "did not exist. This is expected for anything older than yesterday.")  
+        (l/info "Key" list-name-key "did not exist. This is expected for anything older than yesterday.")  
         (let [parsed-list (map json/read-str list-range)
               success (stash-jsonapi-list context parsed-list remote-name json-api-type overwrite)]
-          (l/info "Result stash" list-name "->" remote-name "=" success)
+          (l/info "Result stash" list-name-key "->" remote-name "=" success)
           (when success
             (.del redis-conn (into-array [list-name]))))))))

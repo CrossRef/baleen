@@ -1,6 +1,7 @@
 (ns baleen.lagotto-test
   (:require [baleen.lagotto :as lagotto]
             [baleen.context :as bcontext])
+  (:require [clojure.data.json :as json])
   (:use org.httpkit.fake)
   (:require [clojure.test :refer :all]))
 
@@ -81,8 +82,8 @@
                     :source-id "fish-net"
                     
                     :relation-type "cites")]
-    (is (= result
-            "{\"deposit\":{\"uuid\":\"123456\",\"source_token\":\"SOURCE_TOKEN\",\"subj_id\":\"http:\\/\\/fish.com\\/on-fish\",\"obj_id\":\"https:\\/\\/doi.org\\/10.5040\\/9781580818650.p01\",\"relation_type_id\":\"cites\",\"source_id\":\"fish-net\",\"occurred_at\":\"2016-06-20T08:30:15+00:00\",\"subj\":{\"pid\":\"http:\\/\\/fish.com\\/on-fish\",\"author\":{\"literal\":\"Jim Hake\"},\"title\":\"Fish article\",\"issued\":\"2016-06-20T08:30:15+00:00\",\"URL\":\"http:\\/\\/fish.com\\/on-fish\",\"type\":\"journal-article\"}}}")))))
+    (is (= (json/read-str result)
+           (json/read-str "{\"deposit\":{\"uuid\":\"123456\",\"source_token\":\"SOURCE_TOKEN\",\"subj_id\":\"http:\\/\\/fish.com\\/on-fish\",\"obj_id\":\"https:\\/\\/doi.org\\/10.5040\\/9781580818650.p01\",\"relation_type_id\":\"cites\",\"source_id\":\"fish-net\",\"occurred_at\":\"2016-06-20T08:30:15+00:00\",\"subj\":{\"pid\":\"http:\\/\\/fish.com\\/on-fish\",\"author\":{\"literal\":\"Jim Hake\"},\"title\":\"Fish article\",\"issued\":\"2016-06-20T08:30:15+00:00\",\"URL\":\"http:\\/\\/fish.com\\/on-fish\",\"type\":\"journal-article\"}}}"))))))
 
 
 

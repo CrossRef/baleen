@@ -10,9 +10,10 @@
            [java.net URLDecoder URL MalformedURLException]))
 
 (defn fetch-canonical-url
-  "Fetch a canonical URL from the metadata, if present."
+  "Fetch a canonical URL from the metadata, if present.
+   Follow redirects."
   [url]
-  (let [body (-> url http/get deref :body)]
+  (let [body (:body @(http/get url {:follow-redirects true}))]
     (when body 
       (let [dom (Jsoup/parse body)
             links (.select dom "link[rel=canonical]")

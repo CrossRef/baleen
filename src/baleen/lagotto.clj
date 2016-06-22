@@ -14,12 +14,17 @@
   [context &{:keys [subj-title subj-url subj-author subj-work-type obj-doi action event-id date-str source-id relation-type]}]
   (let [
         source-token (:lagotto-source-token (bcontext/get-config context))
-        subject_metadata {"pid" subj-url
-                          "author" {"literal" subj-author}
+        subject-metadata {"pid" subj-url
                           "title" subj-title
                           "issued" date-str
                           "URL" subj-url
                           "type" subj-work-type}
+
+        subject-metadata-with-optionals (-> 
+          subject-metadata
+          (#(if subj-author
+                (assoc % "author" {"literal" subj-author})
+                %)))
 
         payload (condp = action
           ; No message action when adding, only deleting.
@@ -30,7 +35,7 @@
                            :relation_type_id relation-type
                            :source_id source-id
                            :occurred_at date-str
-                           :subj subject_metadata}}
+                           :subj subject-metadata-with-optionals}}
           "remove" {:deposit {:uuid event-id
                               :message_action "delete"
                               :source_token source-token
@@ -39,7 +44,7 @@
                               :relation_type_id relation-type
                               :source_id source-id
                               :occurred_at date-str
-                              :subj subject_metadata}}
+                              :subj subject-metadata-with-optionals}}
           nil)]
     (when payload
       (json/write-str payload))))
