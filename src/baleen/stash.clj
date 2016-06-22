@@ -73,7 +73,8 @@
   [context list-name remote-name json-api-type overwrite]
   (l/info "Attempt stash" list-name " -> " remote-name)
   (with-open [^Jedis redis-conn (baleen-redis/get-connection context)]
-    (let [list-range (.lrange redis-conn list-name 0 -1)
+    (let [list-name-key (str (bcontext/get-app-name context))
+          list-range (.lrange redis-conn list-name 0 -1)
           key-exists (.exists redis-conn list-name)]
       (if-not key-exists
         (l/info "Key" list-name "did not exist. This is expected for anything older than yesterday.")  
