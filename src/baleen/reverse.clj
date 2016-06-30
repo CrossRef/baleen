@@ -2,8 +2,7 @@
   "Utils for reversing landing pages into DOIs. Calls out to the 'DOI Destinations' service."
   (:require [org.httpkit.client :as http-client]
             [clojure.data.json :as json])
-
-    )
+  (:require [robert.bruce :refer [try-try-again]]))
 
 
 (defn query-reverse-api
@@ -19,8 +18,9 @@
   "Fetch a new set of rules from the DOI Destinations service. Return JSON blob."
   [context]
   (let [url (str (:doi-destinations-base-url (baleen.context/get-config context)) "/data/domain-names.json")]
-    ; TODO temp hack to exclude things like ".".
-    (->> url http-client/get deref :body json/read-str (filter #(> (.length %) 5)))
+    (try-try-again {:sleep 5000 :tries 10} (fn []
+      ; TODO temp hack to exclude things like ".".
+      (->> url http-client/get deref :body json/read-str (filter #(> (.length %) 5)))))
 
   ; Single domain for prototyping.
   ; ["scitation.aip.org"]
